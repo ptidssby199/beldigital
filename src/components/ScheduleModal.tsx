@@ -47,6 +47,7 @@ export const ScheduleModal: React.FC<ScheduleModalProps> = ({
   const [selectedDays, setSelectedDays] = useState<number[]>([1, 2, 3, 4, 5]);
   const [soundType, setSoundType] = useState<SoundType>('chime_tts');
   const [chimeId, setChimeId] = useState<BuiltinChimeId>('airport');
+  const [postludeChimeId, setPostludeChimeId] = useState<BuiltinChimeId>('gentle_ding');
   const [customAudioId, setCustomAudioId] = useState<string>('');
   const [ttsText, setTtsText] = useState('');
   const [room, setRoom] = useState('Semua Ruangan (Broadcast)');
@@ -61,6 +62,7 @@ export const ScheduleModal: React.FC<ScheduleModalProps> = ({
       setSelectedDays(initialItem.days);
       setSoundType(initialItem.soundType);
       setChimeId(initialItem.chimeId || 'airport');
+      setPostludeChimeId(initialItem.postludeChimeId || 'gentle_ding');
       setCustomAudioId(initialItem.customAudioId || (customAudios[0]?.id || ''));
       setTtsText(initialItem.ttsText || '');
       setRoom(initialItem.room || (rooms[0]?.name || 'Semua Ruangan (Broadcast)'));
@@ -70,8 +72,9 @@ export const ScheduleModal: React.FC<ScheduleModalProps> = ({
       setTitle('');
       setTime('08:00');
       setSelectedDays([1, 2, 3, 4, 5]);
-      setSoundType('chime_tts');
-      setChimeId('airport');
+      setSoundType('chime_tts_chime');
+      setChimeId('station_kai');
+      setPostludeChimeId('gentle_ding');
       setCustomAudioId(customAudios[0]?.id || '');
       setTtsText('Perhatian kepada seluruh staf, jam kerja telah dimulai.');
       setRoom(rooms[0]?.name || 'Semua Ruangan (Broadcast)');
@@ -103,7 +106,15 @@ export const ScheduleModal: React.FC<ScheduleModalProps> = ({
 
     setIsPlayingTest(true);
     try {
-      if (soundType === 'chime' || soundType === 'chime_tts') {
+      if (soundType === 'chime_tts_chime') {
+        await playSynthesizedChime(chimeId, volume);
+        if (ttsText.trim()) {
+          await new Promise((r) => setTimeout(r, 500));
+          await speakText(ttsText, ttsConfig);
+          await new Promise((r) => setTimeout(r, 400));
+          await playSynthesizedChime(postludeChimeId || chimeId, volume);
+        }
+      } else if (soundType === 'chime' || soundType === 'chime_tts') {
         await playSynthesizedChime(chimeId, volume);
         if (soundType === 'chime_tts' && ttsText.trim()) {
           await new Promise((r) => setTimeout(r, 400));
@@ -126,6 +137,10 @@ export const ScheduleModal: React.FC<ScheduleModalProps> = ({
           await new Promise((r) => setTimeout(r, 300));
         }
         await speakText(ttsText || 'Tes pengumuman Text to Speech', ttsConfig);
+        if (ttsConfig.chimeAfterAnnouncement) {
+          await new Promise((r) => setTimeout(r, 300));
+          await playSynthesizedChime(ttsConfig.postludeChimeId || 'gentle_ding', volume);
+        }
       }
     } finally {
       setIsPlayingTest(false);
@@ -153,6 +168,7 @@ export const ScheduleModal: React.FC<ScheduleModalProps> = ({
       days: selectedDays,
       soundType,
       chimeId: soundType.includes('chime') ? chimeId : undefined,
+      postludeChimeId: soundType === 'chime_tts_chime' ? postludeChimeId : undefined,
       customAudioId: soundType.includes('custom') ? customAudioId : undefined,
       ttsText: soundType.includes('tts') ? ttsText.trim() : undefined,
       room,
@@ -295,7 +311,8 @@ export const ScheduleModal: React.FC<ScheduleModalProps> = ({
             </label>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
               {[
-                { id: 'chime_tts', label: 'Nada + Pengumuman TTS', desc: 'Chime diikuti suara pembaca' },
+                { id: 'chime_tts_chime', label: '🔔 Bel + TTS + Bel 🔔', desc: 'Bel pembuka, suara bicara, lalu bel penutup (Khas Stasiun/Bandara)' },
+                { id: 'chime_tts', label: 'Nada + Pengumuman TTS', desc: 'Chime pembuka diikuti suara pembaca' },
                 { id: 'chime', label: 'Nada Bel Saja', desc: 'Chime nada klasik kantor' },
                 { id: 'tts', label: 'Pengumuman TTS Saja', desc: 'Membacakan teks pengumuman' },
                 { id: 'custom', label: 'Audio / Rekaman Kustom', desc: 'File rekaman kustom' },
@@ -311,7 +328,7 @@ export const ScheduleModal: React.FC<ScheduleModalProps> = ({
                       : 'border-[#27272a] bg-[#18181b] text-[#71717a] hover:border-[#3f3f46] hover:text-[#fafafa]'
                   }`}
                 >
-                  <span className="text-xs font-bold text-[#fafafa]">{st.label}</span>
+                  <span className={`text-xs font-bold ${soundType === st.id && st.id === 'chime_tts_chime' ? 'text-amber-400' : 'text-[#fafafa]'}`}>{st.label}</span>
                   <span className="text-[10px] text-[#71717a] mt-0.5">{st.desc}</span>
                 </button>
               ))}
@@ -321,31 +338,61 @@ export const ScheduleModal: React.FC<ScheduleModalProps> = ({
           {/* Sound Details Config */}
           <div className="rounded-xl border border-[#27272a] bg-[#18181b] p-4 space-y-4">
             {/* Chime selection */}
-            {(soundType === 'chime' || soundType === 'chime_tts') && (
-              <div>
-                <label className="block text-xs font-semibold text-[#a1a1aa] mb-1.5">
-                  Pilih Nada Bel (Chime)
-                </label>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  {BUILTIN_CHIMES.map((c) => (
-                    <button
-                      key={c.id}
-                      type="button"
-                      onClick={() => setChimeId(c.id)}
-                      className={`flex items-center justify-between p-2.5 rounded-xl border text-xs text-left transition-all ${
-                        chimeId === c.id
-                          ? 'border-blue-500 bg-blue-500/20 text-[#fafafa] font-semibold'
-                          : 'border-[#27272a] bg-[#111114] text-[#a1a1aa] hover:border-[#3f3f46] hover:text-[#fafafa]'
-                      }`}
-                    >
-                      <div>
-                        <div className="font-medium text-[#fafafa]">{c.name}</div>
-                        <div className="text-[10px] text-[#71717a]">{c.duration} • {c.category}</div>
-                      </div>
-                      {chimeId === c.id && <Check className="h-4 w-4 text-blue-400" />}
-                    </button>
-                  ))}
+            {(soundType === 'chime' || soundType === 'chime_tts' || soundType === 'chime_tts_chime') && (
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-xs font-semibold text-[#a1a1aa] mb-1.5">
+                    {soundType === 'chime_tts_chime' ? '1. Pilih Nada Bel Pembuka (Awal)' : 'Pilih Nada Bel (Chime)'}
+                  </label>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {BUILTIN_CHIMES.map((c) => (
+                      <button
+                        key={c.id}
+                        type="button"
+                        onClick={() => setChimeId(c.id)}
+                        className={`flex items-center justify-between p-2.5 rounded-xl border text-xs text-left transition-all ${
+                          chimeId === c.id
+                            ? 'border-blue-500 bg-blue-500/20 text-[#fafafa] font-semibold'
+                            : 'border-[#27272a] bg-[#111114] text-[#a1a1aa] hover:border-[#3f3f46] hover:text-[#fafafa]'
+                        }`}
+                      >
+                        <div>
+                          <div className="font-medium text-[#fafafa]">{c.name}</div>
+                          <div className="text-[10px] text-[#71717a]">{c.duration} • {c.category}</div>
+                        </div>
+                        {chimeId === c.id && <Check className="h-4 w-4 text-blue-400" />}
+                      </button>
+                    ))}
+                  </div>
                 </div>
+
+                {soundType === 'chime_tts_chime' && (
+                  <div className="pt-3 border-t border-[#27272a]">
+                    <label className="block text-xs font-semibold text-amber-400 mb-1.5">
+                      2. Pilih Nada Bel Penutup (Setelah Pengumuman Selesai)
+                    </label>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      {BUILTIN_CHIMES.map((c) => (
+                        <button
+                          key={`post-${c.id}`}
+                          type="button"
+                          onClick={() => setPostludeChimeId(c.id)}
+                          className={`flex items-center justify-between p-2.5 rounded-xl border text-xs text-left transition-all ${
+                            postludeChimeId === c.id
+                              ? 'border-amber-500 bg-amber-500/20 text-[#fafafa] font-semibold'
+                              : 'border-[#27272a] bg-[#111114] text-[#a1a1aa] hover:border-[#3f3f46] hover:text-[#fafafa]'
+                          }`}
+                        >
+                          <div>
+                            <div className="font-medium text-[#fafafa]">{c.name}</div>
+                            <div className="text-[10px] text-[#71717a]">{c.duration}</div>
+                          </div>
+                          {postludeChimeId === c.id && <Check className="h-4 w-4 text-amber-400" />}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 

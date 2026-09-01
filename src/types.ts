@@ -1,4 +1,4 @@
-export type SoundType = 'chime' | 'tts' | 'custom' | 'chime_tts' | 'custom_tts';
+export type SoundType = 'chime' | 'tts' | 'custom' | 'chime_tts' | 'chime_tts_chime' | 'custom_tts';
 
 export type BuiltinChimeId = 
   | 'westminster'
@@ -37,6 +37,7 @@ export interface ScheduleItem {
   days: number[]; // 0 = Minggu, 1 = Senin, 2 = Selasa, 3 = Rabu, 4 = Kamis, 5 = Jumat, 6 = Sabtu
   soundType: SoundType;
   chimeId?: BuiltinChimeId;
+  postludeChimeId?: BuiltinChimeId; // Chime penutup setelah TTS
   customAudioId?: string;
   ttsText?: string;
   room: string;
@@ -66,6 +67,8 @@ export interface TTSConfig {
   pitch: number; // 0.5 - 2.0 (default 1.0)
   chimeBeforeAnnouncement: boolean;
   preludeChimeId: BuiltinChimeId;
+  chimeAfterAnnouncement: boolean;
+  postludeChimeId: BuiltinChimeId;
   repeatCount: number; // 1 or 2
 }
 

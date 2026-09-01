@@ -186,6 +186,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         await new Promise((r) => setTimeout(r, 400));
       }
       await speakText(ttsTestText, ttsConfig);
+      if (ttsConfig.chimeAfterAnnouncement) {
+        await new Promise((r) => setTimeout(r, 400));
+        await playSynthesizedChime(ttsConfig.postludeChimeId || 'gentle_ding', settings.generalVolume);
+      }
     } finally {
       setIsTestingTTS(false);
     }
@@ -501,11 +505,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                               {sch.time}
                             </span>
                             <span className={`rounded-md px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
-                              sch.soundType.includes('tts')
+                              sch.soundType === 'chime_tts_chime'
+                                ? 'bg-amber-500/15 text-amber-300 border border-amber-500/30'
+                                : sch.soundType.includes('tts')
                                 ? 'bg-purple-500/10 text-purple-400 border border-purple-500/20'
                                 : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
                             }`}>
-                              {sch.soundType === 'chime_tts' ? 'Chime + TTS' : sch.soundType === 'tts' ? 'TTS Saja' : sch.soundType === 'chime' ? 'Chime Saja' : 'Audio Kustom'}
+                              {sch.soundType === 'chime_tts_chime' ? '🔔 Bel + TTS + Bel' : sch.soundType === 'chime_tts' ? 'Chime + TTS' : sch.soundType === 'tts' ? 'TTS Saja' : sch.soundType === 'chime' ? 'Chime Saja' : 'Audio Kustom'}
                             </span>
                           </div>
 
@@ -704,8 +710,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 <div className="rounded-xl border border-[#27272a] bg-[#18181b] p-4 space-y-3">
                   <div className="flex items-center justify-between">
                     <div>
-                      <div className="text-xs font-semibold text-[#fafafa]">Bunyikan Chime Sebelum Pengumuman</div>
-                      <div className="text-[11px] text-[#71717a]">Memberikan sinyal nada pembuka agar karyawan memperhatikan</div>
+                      <div className="text-xs font-semibold text-[#fafafa]">Bunyikan Chime Sebelum Pengumuman (Pembuka)</div>
+                      <div className="text-[11px] text-[#71717a]">Memberikan sinyal nada pembuka agar audiens memperhatikan</div>
                     </div>
                     <label className="relative inline-flex items-center cursor-pointer">
                       <input
@@ -730,7 +736,45 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       >
                         {BUILTIN_CHIMES.map((c) => (
                           <option key={c.id} value={c.id}>
-                            {c.name}
+                            {c.name} ({c.duration})
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+                </div>
+
+                {/* Postlude Chime Toggle (Bel Penutup) */}
+                <div className="rounded-xl border border-[#27272a] bg-[#18181b] p-4 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="text-xs font-semibold text-[#fafafa]">Bunyikan Chime Setelah Pengumuman (Penutup)</div>
+                      <div className="text-[11px] text-[#71717a]">Menutup pengumuman suara dengan nada akhir (Format: Bel + TTS + Bel)</div>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={ttsConfig.chimeAfterAnnouncement}
+                        onChange={(e) => onSaveTTSConfig({ ...ttsConfig, chimeAfterAnnouncement: e.target.checked })}
+                        className="sr-only peer"
+                      />
+                      <div className="w-10 h-5 bg-[#27272a] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-amber-600"></div>
+                    </label>
+                  </div>
+
+                  {ttsConfig.chimeAfterAnnouncement && (
+                    <div className="pt-2 border-t border-[#27272a]">
+                      <label className="block text-xs font-medium text-amber-400 mb-1">
+                        Pilihan Nada Penutup:
+                      </label>
+                      <select
+                        value={ttsConfig.postludeChimeId}
+                        onChange={(e) => onSaveTTSConfig({ ...ttsConfig, postludeChimeId: e.target.value as BuiltinChimeId })}
+                        className="w-full rounded-lg border border-[#27272a] bg-[#111114] px-3 py-2 text-xs text-[#fafafa]"
+                      >
+                        {BUILTIN_CHIMES.map((c) => (
+                          <option key={`post-${c.id}`} value={c.id}>
+                            {c.name} ({c.duration})
                           </option>
                         ))}
                       </select>

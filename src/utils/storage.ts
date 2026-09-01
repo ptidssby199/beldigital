@@ -319,6 +319,8 @@ export const DEFAULT_TTS_CONFIG: TTSConfig = {
   pitch: 1.0,
   chimeBeforeAnnouncement: true,
   preludeChimeId: 'airport',
+  chimeAfterAnnouncement: false,
+  postludeChimeId: 'gentle_ding',
   repeatCount: 1
 };
 

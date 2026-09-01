@@ -23,6 +23,8 @@ export const QuickManualAnnouncementModal: React.FC<QuickManualAnnouncementModal
   const [selectedChime, setSelectedChime] = useState<BuiltinChimeId>('airport');
   const [selectedRoom, setSelectedRoom] = useState('Semua Ruangan (Broadcast)');
   const [includeChime, setIncludeChime] = useState(true);
+  const [includePostludeChime, setIncludePostludeChime] = useState(true);
+  const [selectedPostChime, setSelectedPostChime] = useState<BuiltinChimeId>('gentle_ding');
   const [isBroadcasting, setIsBroadcasting] = useState(false);
 
   if (!isOpen) return null;
@@ -40,6 +42,11 @@ export const QuickManualAnnouncementModal: React.FC<QuickManualAnnouncementModal
       }
 
       await speakText(announcementText, ttsConfig);
+
+      if (includePostludeChime) {
+        await new Promise((r) => setTimeout(r, 400));
+        await playSynthesizedChime(selectedPostChime, generalVolume);
+      }
       onClose();
     } catch (err) {
       console.error('Error broadcasting manual announcement', err);
@@ -184,31 +191,60 @@ export const QuickManualAnnouncementModal: React.FC<QuickManualAnnouncementModal
           </div>
 
           {/* Chime prelude options */}
-          <div className="flex items-center justify-between rounded-xl border border-[#27272a] bg-[#18181b] p-3">
-            <div className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                id="check-prelude"
-                checked={includeChime}
-                onChange={(e) => setIncludeChime(e.target.checked)}
-                className="rounded border-[#27272a] bg-[#111114] text-blue-600 focus:ring-blue-500"
-              />
-              <label htmlFor="check-prelude" className="text-xs text-[#a1a1aa] cursor-pointer">
-                Bunyikan nada pembuka sebelum bicara
-              </label>
+          <div className="space-y-2">
+            <div className="flex items-center justify-between rounded-xl border border-[#27272a] bg-[#18181b] p-3">
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="check-prelude"
+                  checked={includeChime}
+                  onChange={(e) => setIncludeChime(e.target.checked)}
+                  className="rounded border-[#27272a] bg-[#111114] text-blue-600 focus:ring-blue-500"
+                />
+                <label htmlFor="check-prelude" className="text-xs text-[#a1a1aa] cursor-pointer">
+                  Nada Pembuka (Awal)
+                </label>
+              </div>
+
+              <select
+                value={selectedChime}
+                onChange={(e) => setSelectedChime(e.target.value as BuiltinChimeId)}
+                className="rounded-lg border border-[#27272a] bg-[#111114] px-2 py-1 text-xs text-[#fafafa]"
+              >
+                {BUILTIN_CHIMES.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
             </div>
 
-            <select
-              value={selectedChime}
-              onChange={(e) => setSelectedChime(e.target.value as BuiltinChimeId)}
-              className="rounded-lg border border-[#27272a] bg-[#111114] px-2 py-1 text-xs text-[#fafafa]"
-            >
-              {BUILTIN_CHIMES.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
-                </option>
-              ))}
-            </select>
+            <div className="flex items-center justify-between rounded-xl border border-[#27272a] bg-[#18181b] p-3">
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="check-postlude"
+                  checked={includePostludeChime}
+                  onChange={(e) => setIncludePostludeChime(e.target.checked)}
+                  className="rounded border-[#27272a] bg-[#111114] text-amber-500 focus:ring-amber-500"
+                />
+                <label htmlFor="check-postlude" className="text-xs text-amber-400 cursor-pointer">
+                  Nada Penutup (Akhir)
+                </label>
+              </div>
+
+              <select
+                value={selectedPostChime}
+                onChange={(e) => setSelectedPostChime(e.target.value as BuiltinChimeId)}
+                className="rounded-lg border border-[#27272a] bg-[#111114] px-2 py-1 text-xs text-[#fafafa]"
+              >
+                {BUILTIN_CHIMES.map((c) => (
+                  <option key={`post-${c.id}`} value={c.id}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
 
           {/* Action buttons */}

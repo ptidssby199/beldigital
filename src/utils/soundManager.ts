@@ -89,6 +89,10 @@ export async function executeScheduleSound(
             await new Promise((r) => setTimeout(r, 400));
           }
           await speakText(item.ttsText, ttsConfig);
+          if (ttsConfig.chimeAfterAnnouncement) {
+            await new Promise((r) => setTimeout(r, 400));
+            await playSynthesizedChime(ttsConfig.postludeChimeId || 'gentle_ding', effectiveVolume);
+          }
         } else {
           await playSynthesizedChime('airport', effectiveVolume);
         }
@@ -103,6 +107,25 @@ export async function executeScheduleSound(
         if (item.ttsText && item.ttsText.trim().length > 0) {
           await speakText(item.ttsText, ttsConfig);
         }
+        break;
+      }
+
+      case 'chime_tts_chime': {
+        const openChime = item.chimeId || 'airport';
+        const closeChime = item.postludeChimeId || item.chimeId || 'gentle_ding';
+        
+        // 1. Bel Pembuka
+        await playSynthesizedChime(openChime, effectiveVolume);
+        await new Promise((r) => setTimeout(r, 600));
+
+        // 2. Pengumuman Suara (TTS)
+        if (item.ttsText && item.ttsText.trim().length > 0) {
+          await speakText(item.ttsText, ttsConfig);
+        }
+
+        // 3. Jeda sejenak & Bel Penutup
+        await new Promise((r) => setTimeout(r, 500));
+        await playSynthesizedChime(closeChime, effectiveVolume);
         break;
       }
 
