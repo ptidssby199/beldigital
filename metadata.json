@@ -1,0 +1,6 @@
+{
+  "name": "Bel Kantor Digital",
+  "description": "Sistem bel kantor digital otomatis dengan jam digital display besar, Text-to-Speech (TTS) pengumuman, penjadwalan pintar, sinkronisasi waktu presisi, audio kustom, dan dashboard admin ber-PIN.",
+  "requestFramePermissions": ["microphone"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
