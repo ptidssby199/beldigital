@@ -132,10 +132,13 @@ export const ScheduleModal: React.FC<ScheduleModalProps> = ({
     }
   };
 
-  const handleApplyTemplate = (templateText: string, templateTitle: string) => {
+  const handleApplyTemplate = (templateText: string, templateTitle: string, defaultChime?: string) => {
     setTtsText(templateText);
     if (!title || title.trim() === '') {
       setTitle(templateTitle);
+    }
+    if (defaultChime) {
+      setChimeId(defaultChime as BuiltinChimeId);
     }
   };
 
@@ -398,15 +401,32 @@ export const ScheduleModal: React.FC<ScheduleModalProps> = ({
                       className="flex items-center gap-1 text-[11px] font-medium text-blue-400 hover:text-blue-300"
                     >
                       <Sparkles className="h-3 w-3" />
-                      <span>Gunakan Template Kantor</span>
+                      <span>Gunakan Template Pengumuman</span>
                     </button>
-                    <div className="absolute right-0 top-full mt-1 hidden group-hover:block w-72 rounded-xl border border-[#27272a] bg-[#111114] p-2 shadow-2xl z-20">
-                      <p className="text-[10px] uppercase font-bold text-[#71717a] px-2 py-1">Pilih Template Otomatis:</p>
-                      {INDONESIAN_ANNOUNCEMENT_TEMPLATES.map((tmpl, idx) => (
+                    <div className="absolute right-0 top-full mt-1 hidden group-hover:block w-80 max-h-80 overflow-y-auto rounded-xl border border-[#27272a] bg-[#111114] p-2 shadow-2xl z-20">
+                      <p className="text-[10px] uppercase font-bold text-blue-400 px-2 py-1 flex items-center gap-1">
+                        <span>🚆 Pengumuman Stasiun & Peron</span>
+                      </p>
+                      {INDONESIAN_ANNOUNCEMENT_TEMPLATES.filter((t) => t.category === 'station').map((tmpl, idx) => (
                         <button
-                          key={idx}
+                          key={`st-${idx}`}
                           type="button"
-                          onClick={() => handleApplyTemplate(tmpl.text, tmpl.title)}
+                          onClick={() => handleApplyTemplate(tmpl.text, tmpl.title, tmpl.defaultChimeId)}
+                          className="w-full text-left rounded-lg p-2 text-xs text-[#a1a1aa] hover:bg-[#27272a] hover:text-[#fafafa] transition-colors"
+                        >
+                          <div className="font-semibold text-[#fafafa]">{tmpl.title}</div>
+                          <div className="text-[10px] text-[#71717a] truncate">{tmpl.text}</div>
+                        </button>
+                      ))}
+
+                      <p className="text-[10px] uppercase font-bold text-[#71717a] px-2 py-1 mt-2 border-t border-[#27272a]">
+                        🏢 Kantor & Umum
+                      </p>
+                      {INDONESIAN_ANNOUNCEMENT_TEMPLATES.filter((t) => t.category !== 'station').map((tmpl, idx) => (
+                        <button
+                          key={`of-${idx}`}
+                          type="button"
+                          onClick={() => handleApplyTemplate(tmpl.text, tmpl.title, tmpl.defaultChimeId)}
                           className="w-full text-left rounded-lg p-2 text-xs text-[#a1a1aa] hover:bg-[#27272a] hover:text-[#fafafa] transition-colors"
                         >
                           <div className="font-semibold text-[#fafafa]">{tmpl.title}</div>

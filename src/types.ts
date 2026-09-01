@@ -3,6 +3,9 @@ export type SoundType = 'chime' | 'tts' | 'custom' | 'chime_tts' | 'custom_tts';
 export type BuiltinChimeId = 
   | 'westminster'
   | 'airport'
+  | 'station_kai'
+  | 'shinkansen_station'
+  | 'subway_station'
   | 'modern_tri'
   | 'classic_bell'
   | 'gentle_ding'
@@ -14,7 +17,7 @@ export interface BuiltinChime {
   name: string;
   description: string;
   duration: string;
-  category: 'office' | 'alert' | 'classic' | 'melodic';
+  category: 'office' | 'alert' | 'classic' | 'melodic' | 'station';
 }
 
 export interface CustomAudioItem {

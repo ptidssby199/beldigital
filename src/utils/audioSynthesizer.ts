@@ -34,6 +34,27 @@ export async function unlockAudio(): Promise<boolean> {
 
 export const BUILTIN_CHIMES: BuiltinChime[] = [
   {
+    id: 'station_kai',
+    name: 'Stasiun Kereta Api (Melodi Kedatangan KAI)',
+    description: 'Melodi lonceng arpeggio khas stasiun kereta api Indonesia yang bergaung jernih.',
+    duration: '4.2 dtk',
+    category: 'station'
+  },
+  {
+    id: 'shinkansen_station',
+    name: 'Stasiun Kereta Cepat (Transit Chime)',
+    description: 'Nada 4-nada lonceng stasiun modern & kereta cepat internasional.',
+    duration: '3.2 dtk',
+    category: 'station'
+  },
+  {
+    id: 'subway_station',
+    name: 'Stasiun MRT / Komuter (3-Tone Chime)',
+    description: 'Nada pembuka 3-nada pengumuman jalur peron MRT/LRT/Komuter.',
+    duration: '2.5 dtk',
+    category: 'station'
+  },
+  {
     id: 'airport',
     name: 'Airport Chime (Ding-Dong)',
     description: 'Nada klasik 2-nada lembut khas bandara / kantor modern.',
@@ -96,6 +117,54 @@ export function playSynthesizedChime(chimeId: BuiltinChimeId, volumePercent = 10
       const now = ctx.currentTime;
 
       switch (chimeId) {
+        case 'station_kai': {
+          // Iconic Indonesian Railway / Station arrival arpeggio: D5 -> F#5 -> A5 -> D6 -> A5 -> F#5 -> D5
+          const notes = [
+            { freq: 587.33, time: 0.0, dur: 1.2 },
+            { freq: 739.99, time: 0.35, dur: 1.2 },
+            { freq: 880.00, time: 0.70, dur: 1.2 },
+            { freq: 1174.66, time: 1.05, dur: 1.8 },
+            { freq: 880.00, time: 1.55, dur: 1.3 },
+            { freq: 739.99, time: 1.95, dur: 1.4 },
+            { freq: 587.33, time: 2.35, dur: 2.2 }
+          ];
+          notes.forEach((n) => {
+            playStationHallChime(ctx, masterGain, n.freq, now + n.time, n.dur);
+          });
+          setTimeout(resolve, 4400);
+          break;
+        }
+
+        case 'shinkansen_station': {
+          // Modern bullet train / transit arrival chime: C5 -> G5 -> E5 -> C6
+          const notes = [
+            { freq: 523.25, time: 0.0, dur: 1.2 },
+            { freq: 783.99, time: 0.38, dur: 1.2 },
+            { freq: 659.25, time: 0.76, dur: 1.2 },
+            { freq: 1046.50, time: 1.15, dur: 2.2 }
+          ];
+          notes.forEach((n) => {
+            playStationHallChime(ctx, masterGain, n.freq, now + n.time, n.dur);
+          });
+          setTimeout(resolve, 3300);
+          break;
+        }
+
+        case 'subway_station': {
+          // 3-Tone subway / MRT arrival alert: F5 -> A5 -> C6 -> A5
+          const notes = [
+            { freq: 698.46, time: 0.0, dur: 1.0 },
+            { freq: 880.00, time: 0.35, dur: 1.0 },
+            { freq: 1046.50, time: 0.70, dur: 1.4 },
+            { freq: 880.00, time: 1.10, dur: 1.6 }
+          ];
+          notes.forEach((n) => {
+            playModernGlockenspiel(ctx, masterGain, n.freq, now + n.time, n.dur);
+          });
+          setTimeout(resolve, 2700);
+          break;
+        }
+
         case 'airport': {
           // G4 (392Hz) -> C5 (523.25Hz) with soft sine + harmonics
           playToneWithHarmonics(ctx, masterGain, 392.00, now, 1.2, 0.8);
@@ -220,6 +289,62 @@ function playToneWithHarmonics(
   osc2.start(startTime);
   osc1.stop(startTime + duration + 0.1);
   osc2.stop(startTime + duration + 0.1);
+}
+
+function playStationHallChime(
+  ctx: AudioContext,
+  dest: GainNode,
+  freq: number,
+  startTime: number,
+  duration: number
+) {
+  // Fundamental pure chime
+  const osc1 = ctx.createOscillator();
+  const gain1 = ctx.createGain();
+  osc1.type = 'sine';
+  osc1.frequency.setValueAtTime(freq, startTime);
+
+  // Soft octave shimmer
+  const osc2 = ctx.createOscillator();
+  const gain2 = ctx.createGain();
+  osc2.type = 'sine';
+  osc2.frequency.setValueAtTime(freq * 2.0, startTime);
+
+  // Inharmonic bell harmonic
+  const osc3 = ctx.createOscillator();
+  const gain3 = ctx.createGain();
+  osc3.type = 'sine';
+  osc3.frequency.setValueAtTime(freq * 3.01, startTime);
+
+  // Main Envelope
+  gain1.gain.setValueAtTime(0.0001, startTime);
+  gain1.gain.linearRampToValueAtTime(0.7, startTime + 0.015);
+  gain1.gain.exponentialRampToValueAtTime(0.0001, startTime + duration);
+
+  // Octave Envelope
+  gain2.gain.setValueAtTime(0.0001, startTime);
+  gain2.gain.linearRampToValueAtTime(0.28, startTime + 0.01);
+  gain2.gain.exponentialRampToValueAtTime(0.0001, startTime + duration * 0.8);
+
+  // Inharmonic envelope
+  gain3.gain.setValueAtTime(0.0001, startTime);
+  gain3.gain.linearRampToValueAtTime(0.12, startTime + 0.008);
+  gain3.gain.exponentialRampToValueAtTime(0.0001, startTime + duration * 0.45);
+
+  osc1.connect(gain1);
+  gain1.connect(dest);
+  osc2.connect(gain2);
+  gain2.connect(dest);
+  osc3.connect(gain3);
+  gain3.connect(dest);
+
+  osc1.start(startTime);
+  osc2.start(startTime);
+  osc3.start(startTime);
+
+  osc1.stop(startTime + duration + 0.05);
+  osc2.stop(startTime + duration * 0.8 + 0.05);
+  osc3.stop(startTime + duration * 0.45 + 0.05);
 }
 
 function playTubularBellTone(

@@ -211,6 +211,91 @@ export const DEFAULT_PRESETS: SchedulePreset[] = [
         enabled: true
       }
     ]
+  },
+  {
+    id: 'train_station_terminal',
+    name: 'Stasiun Kereta Api & Terminal Transportasi',
+    description: 'Jadwal operasional peron, pengumuman kedatangan/keberangkatan kereta, boarding gate, dan imbauan keselamatan.',
+    schedules: [
+      {
+        id: 'sch_st1',
+        title: 'Pembukaan Boarding Gate Pagi',
+        time: '06:00',
+        days: [0, 1, 2, 3, 4, 5, 6],
+        soundType: 'chime_tts',
+        chimeId: 'station_kai',
+        ttsText: 'Perhatian kepada seluruh calon penumpang, pintu boarding gate stasiun telah dibuka. Harap siapkan kartu identitas dan kode booking tiket Anda.',
+        room: 'Semua Ruangan (Broadcast)',
+        volume: 100,
+        enabled: true,
+        category: 'announcement'
+      },
+      {
+        id: 'sch_st2',
+        title: 'Pengumuman Kedatangan Kereta Api (Jalur 2)',
+        time: '07:15',
+        days: [0, 1, 2, 3, 4, 5, 6],
+        soundType: 'chime_tts',
+        chimeId: 'station_kai',
+        ttsText: 'Perhatian, sesaat lagi di jalur dua akan masuk Kereta Api Pasundan. Bagi para penumpang yang menunggu di peron dua, dimohon untuk tetap berdiri di belakang garis aman kuning.',
+        room: 'Semua Ruangan (Broadcast)',
+        volume: 100,
+        enabled: true,
+        category: 'announcement'
+      },
+      {
+        id: 'sch_st3',
+        title: 'Persiapan Keberangkatan Kereta Api (Jalur 2)',
+        time: '07:30',
+        days: [0, 1, 2, 3, 4, 5, 6],
+        soundType: 'chime_tts',
+        chimeId: 'station_kai',
+        ttsText: 'Panggilan kepada seluruh penumpang Kereta Api di jalur dua, pintu kereta akan segera ditutup. Bagi penumpang yang masih berada di peron, dipersilakan segera memasuki rangkaian kereta.',
+        room: 'Semua Ruangan (Broadcast)',
+        volume: 100,
+        enabled: true,
+        category: 'announcement'
+      },
+      {
+        id: 'sch_st4',
+        title: 'Peringatan Keselamatan Garis Kuning Peron',
+        time: '10:00',
+        days: [0, 1, 2, 3, 4, 5, 6],
+        soundType: 'chime_tts',
+        chimeId: 'shinkansen_station',
+        ttsText: 'Perhatian, demi keselamatan bersama, dimohon untuk selalu berdiri di belakang garis kuning peron dan berhati-hati terhadap celah antara peron dan lantai kereta.',
+        room: 'Semua Ruangan (Broadcast)',
+        volume: 90,
+        enabled: true,
+        category: 'announcement'
+      },
+      {
+        id: 'sch_st5',
+        title: 'Pengumuman Kedatangan Kereta Api Sore (Jalur 1)',
+        time: '16:45',
+        days: [0, 1, 2, 3, 4, 5, 6],
+        soundType: 'chime_tts',
+        chimeId: 'station_kai',
+        ttsText: 'Perhatian, di jalur satu akan segera masuk Kereta Api Argo Bromo Anggrek. Penumpang di peron satu dimohon bersiap dan tidak mendekati bibir peron hingga kereta berhenti sempurna.',
+        room: 'Semua Ruangan (Broadcast)',
+        volume: 100,
+        enabled: true,
+        category: 'announcement'
+      },
+      {
+        id: 'sch_st6',
+        title: 'Himbauan Pengawasan Barang Bawaan & Keamanan',
+        time: '19:00',
+        days: [0, 1, 2, 3, 4, 5, 6],
+        soundType: 'chime_tts',
+        chimeId: 'subway_station',
+        ttsText: 'Dihimbau kepada seluruh penumpang untuk selalu menjaga dan memeriksa barang bawaan Anda. Jangan meninggalkan barang berharga tanpa pengawasan.',
+        room: 'Semua Ruangan (Broadcast)',
+        volume: 90,
+        enabled: true,
+        category: 'announcement'
+      }
+    ]
   }
 ];
 

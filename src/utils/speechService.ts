@@ -8,41 +8,105 @@ export interface TTSVoiceOption {
   isIndonesian: boolean;
 }
 
-export const INDONESIAN_ANNOUNCEMENT_TEMPLATES = [
+export interface AnnouncementTemplate {
+  title: string;
+  category: 'office' | 'station' | 'school' | 'alert';
+  text: string;
+  defaultChimeId?: string;
+}
+
+export const INDONESIAN_ANNOUNCEMENT_TEMPLATES: AnnouncementTemplate[] = [
+  // STASIUN KERETA API & TRANSPORTASI
+  {
+    title: 'Stasiun: Kedatangan Kereta di Jalur / Peron',
+    category: 'station',
+    defaultChimeId: 'station_kai',
+    text: 'Perhatian, sesaat lagi di jalur dua akan masuk Kereta Api Pasundan dari Surabaya menuju Kiaracondong. Bagi para penumpang yang menunggu di peron dua, dimohon untuk tetap berdiri di belakang garis aman kuning.'
+  },
+  {
+    title: 'Stasiun: Persiapan Keberangkatan Kereta Api',
+    category: 'station',
+    defaultChimeId: 'station_kai',
+    text: 'Panggilan kepada seluruh penumpang Kereta Api Argo Bromo Anggrek tujuan Stasiun Gambir. Kereta Anda siap diberangkatkan dari jalur satu. Pintu kereta akan segera ditutup. Bagi penumpang yang masih berada di peron, dipersilakan segera memasuki rangkaian kereta.'
+  },
+  {
+    title: 'Stasiun: Pembukaan Boarding Gate & Pemeriksaan Tiket',
+    category: 'station',
+    defaultChimeId: 'station_kai',
+    text: 'Perhatian, pintu masuk boarding gate untuk Kereta Api Jayabaya telah dibuka. Harap siapkan kartu identitas asli dan bukti tiket Anda sebelum memasuki area peron.'
+  },
+  {
+    title: 'Stasiun: Peringatan Keselamatan Garis Kuning Peron',
+    category: 'station',
+    defaultChimeId: 'shinkansen_station',
+    text: 'Perhatian, demi keselamatan bersama, dimohon kepada seluruh calon penumpang untuk selalu berdiri di belakang garis batas aman kuning dan berhati-hati terhadap celah antara peron dan lantai kereta.'
+  },
+  {
+    title: 'Stasiun: Pengawasan Barang Bawaan & Waspada Kehilangan',
+    category: 'station',
+    defaultChimeId: 'subway_station',
+    text: 'Dihimbau kepada seluruh penumpang untuk selalu memeriksa dan menjaga barang bawaan Anda. Jangan meninggalkan barang berharga tanpa pengawasan, dan pastikan tidak ada barang yang tertinggal saat naik maupun turun dari kereta.'
+  },
+  {
+    title: 'Stasiun: Kawasan Bebas Rokok & Kebersihan',
+    category: 'station',
+    defaultChimeId: 'subway_station',
+    text: 'Diberitahukan kepada seluruh penumpang, demi kenyamanan bersama seluruh area peron stasiun dan rangkaian kereta api adalah area bebas dari asap rokok. Terima kasih atas kerja sama Anda.'
+  },
+
+  // KANTOR & INSTANSI
   {
     title: 'Jam Masuk Kerja Pagi',
+    category: 'office',
+    defaultChimeId: 'westminster',
     text: 'Perhatian kepada seluruh staf dan karyawan. Jam kerja pagi telah dimulai. Selamat beraktivitas dan selamat bekerja dengan penuh semangat.'
   },
   {
     title: 'Istirahat Siang / Makan & Sholat',
+    category: 'office',
+    defaultChimeId: 'airport',
     text: 'Perhatian kepada seluruh karyawan. Waktu istirahat siang telah tiba. Selamat menikmati waktu istirahat dan santap siang.'
   },
   {
     title: 'Selesai Istirahat Siang',
+    category: 'office',
+    defaultChimeId: 'modern_tri',
     text: 'Waktu istirahat telah berakhir. Dimohon kepada seluruh staf untuk segera kembali ke ruang kerja masing-masing.'
   },
   {
     title: 'Jam Pulang Kerja Sore',
+    category: 'office',
+    defaultChimeId: 'westminster',
     text: 'Perhatian, jam kerja hari ini telah selesai. Terima kasih atas kerja keras dan dedikasi Anda. Harap pastikan peralatan kerja, AC, dan komputer telah dimatikan sebelum meninggalkan ruangan. Selamat beristirahat.'
   },
   {
     title: 'Briefing / Rapat Harian',
+    category: 'office',
+    defaultChimeId: 'gentle_ding',
     text: 'Panggilan kepada seluruh staf. Diharapkan untuk berkumpul di ruang rapat utama untuk mengikuti briefing harian.'
   },
   {
     title: 'Waktu Peregangan (Ice Breaking)',
+    category: 'office',
+    defaultChimeId: 'marimba',
     text: 'Waktunya relaksasi sejenak. Seluruh staf disarankan untuk melakukan peregangan otot ringan dan minum air putih untuk menjaga kesehatan.'
   },
   {
     title: 'Peringatan Hari Jumat (Sholat Jumat)',
+    category: 'office',
+    defaultChimeId: 'airport',
     text: 'Perhatian, waktu persiapan ibadah Sholat Jumat telah tiba. Bagi karyawan muslim disilakan untuk bersiap-siap menuju masjid.'
   },
   {
     title: 'Pemberitahuan Tamu / Resepsionis',
+    category: 'office',
+    defaultChimeId: 'gentle_ding',
     text: 'Panggilan bagian resepsionis. Terdapat tamu yang menunggu di lobby utama.'
   },
   {
     title: 'Pengumuman Darurat (Evakuasi)',
+    category: 'alert',
+    defaultChimeId: 'urgent_alert',
     text: 'PERHATIAN PENTING! Seluruh staf dimohon untuk tetap tenang, tinggalkan ruangan melalui tangga darurat dan berkumpul di titik kumpul yang telah ditentukan.'
   }
 ];

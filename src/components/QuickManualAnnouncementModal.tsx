@@ -99,29 +99,73 @@ export const QuickManualAnnouncementModal: React.FC<QuickManualAnnouncementModal
             <div className="flex items-center justify-between mb-1.5">
               <label className="text-xs font-semibold text-[#a1a1aa] flex items-center gap-1">
                 <Sparkles className="h-3.5 w-3.5 text-amber-400" />
-                Template Cepat
+                Template Cepat Siaran
               </label>
             </div>
-            <div className="flex flex-wrap gap-1.5">
-              {[
-                'Panggilan ke Ruang Rapat',
-                'Ada Tamu di Lobby',
-                'Istirahat Sholat',
-                'Waktu Peregangan',
-                'Evakuasi Darurat'
-              ].map((tmplTitle, idx) => {
-                const fullText = INDONESIAN_ANNOUNCEMENT_TEMPLATES.find((t) => t.title.includes(tmplTitle.split(' ')[0]))?.text || tmplTitle;
-                return (
-                  <button
-                    key={idx}
-                    type="button"
-                    onClick={() => setAnnouncementText(fullText)}
-                    className="rounded-lg border border-[#27272a] bg-[#18181b] px-2.5 py-1 text-[11px] font-medium text-[#a1a1aa] hover:border-[#3f3f46] hover:text-[#fafafa] transition-all"
-                  >
-                    {tmplTitle}
-                  </button>
-                );
-              })}
+
+            {/* Category tabs / filter buttons */}
+            <div className="space-y-1.5">
+              <div className="text-[10px] font-semibold text-blue-400 flex items-center gap-1">
+                <span>🚆 Pengumuman Stasiun & Peron</span>
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {[
+                  { label: 'Kedatangan Kereta', query: 'Kedatangan Kereta', chime: 'station_kai' as BuiltinChimeId },
+                  { label: 'Keberangkatan Kereta', query: 'Persiapan Keberangkatan', chime: 'station_kai' as BuiltinChimeId },
+                  { label: 'Boarding Gate', query: 'Boarding Gate', chime: 'station_kai' as BuiltinChimeId },
+                  { label: 'Garis Kuning Peron', query: 'Garis Kuning', chime: 'shinkansen_station' as BuiltinChimeId },
+                  { label: 'Barang Bawaan', query: 'Barang Bawaan', chime: 'subway_station' as BuiltinChimeId },
+                ].map((tmpl, idx) => {
+                  const match = INDONESIAN_ANNOUNCEMENT_TEMPLATES.find((t) => t.title.includes(tmpl.query));
+                  return (
+                    <button
+                      key={`st-${idx}`}
+                      type="button"
+                      onClick={() => {
+                        if (match) {
+                          setAnnouncementText(match.text);
+                          setSelectedChime(tmpl.chime);
+                          setIncludeChime(true);
+                        }
+                      }}
+                      className="rounded-lg border border-blue-500/30 bg-blue-500/10 px-2.5 py-1 text-[11px] font-medium text-blue-300 hover:border-blue-500 hover:bg-blue-500/20 transition-all"
+                    >
+                      {tmpl.label}
+                    </button>
+                  );
+                })}
+              </div>
+
+              <div className="text-[10px] font-semibold text-[#a1a1aa] flex items-center gap-1 pt-1">
+                <span>🏢 Kantor & Umum</span>
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {[
+                  { label: 'Rapat', query: 'Rapat', chime: 'gentle_ding' as BuiltinChimeId },
+                  { label: 'Tamu Lobby', query: 'Tamu', chime: 'gentle_ding' as BuiltinChimeId },
+                  { label: 'Istirahat Siang', query: 'Istirahat Siang', chime: 'airport' as BuiltinChimeId },
+                  { label: 'Peregangan', query: 'Peregangan', chime: 'marimba' as BuiltinChimeId },
+                  { label: 'Evakuasi Darurat', query: 'Darurat', chime: 'urgent_alert' as BuiltinChimeId }
+                ].map((tmpl, idx) => {
+                  const match = INDONESIAN_ANNOUNCEMENT_TEMPLATES.find((t) => t.title.includes(tmpl.query));
+                  return (
+                    <button
+                      key={`of-${idx}`}
+                      type="button"
+                      onClick={() => {
+                        if (match) {
+                          setAnnouncementText(match.text);
+                          setSelectedChime(tmpl.chime);
+                          setIncludeChime(true);
+                        }
+                      }}
+                      className="rounded-lg border border-[#27272a] bg-[#18181b] px-2.5 py-1 text-[11px] font-medium text-[#a1a1aa] hover:border-[#3f3f46] hover:text-[#fafafa] transition-all"
+                    >
+                      {tmpl.label}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           </div>
 
