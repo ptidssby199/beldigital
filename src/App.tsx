@@ -15,6 +15,7 @@ import {
 } from './utils/soundManager';
 import { getSynchronizedDate, synchronizeNetworkTime } from './utils/timeSync';
 import { unlockAudio } from './utils/audioSynthesizer';
+import { createBackgroundInterval } from './utils/backgroundTimer';
 import { ClockDisplay } from './components/ClockDisplay';
 import { AdminDashboard } from './components/AdminDashboard';
 import { PinModal } from './components/PinModal';
@@ -112,9 +113,9 @@ export default function App() {
     return () => clearInterval(interval);
   }, [timeSyncConfig]);
 
-  // Main Bell Automation Engine: Runs once every 800ms
+  // Main Bell Automation Engine: Runs reliably in foreground and background (Web Worker)
   useEffect(() => {
-    const schedulerInterval = setInterval(() => {
+    const stopScheduler = createBackgroundInterval(() => {
       const synDate = getSynchronizedDate(timeSyncConfig);
       const dayOfWeek = synDate.getDay(); // 0-6
       const hours = synDate.getHours().toString().padStart(2, '0');
@@ -151,7 +152,7 @@ export default function App() {
       }
     }, 800);
 
-    return () => clearInterval(schedulerInterval);
+    return () => stopScheduler();
   }, [schedules, timeSyncConfig, ttsConfig, settings.generalVolume, settings.muteAll]);
 
   // State update helpers with localStorage persistence
